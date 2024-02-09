@@ -1,5 +1,5 @@
 ---
-k3s_version: v1.26.10+k3s1
+k3s_version: v1.27.10+k3s1
 ansible_user: serveradmin
 systemd_dir: /etc/systemd/system
 
@@ -58,7 +58,7 @@ extra_agent_args: >-
   {{ extra_args }}
 
 # image tag for kube-vip
-kube_vip_tag_version: "v0.6.3"
+kube_vip_tag_version: "v0.7.0"
 
 # metallb type frr or native
 metal_lb_type: "native"
@@ -73,8 +73,8 @@ metal_lb_mode: "layer2"
 
 # image tag for metal lb
 #metal_lb_frr_tag_version: "v7.5.1"
-metal_lb_speaker_tag_version: "v0.13.12"
-metal_lb_controller_tag_version: "v0.13.12"
+metal_lb_speaker_tag_version: "v0.14.3"
+metal_lb_controller_tag_version: "v0.14.3"
 
 # metallb ip range for load balancer
 metal_lb_ip_range: "192.168.10.40-192.168.10.50"
@@ -126,7 +126,7 @@ rancher_replicas: 1
 rancher_dns_name: "rancher.yourdomain.lan"
 
 #version of cert-manager to deploy
-cert_manager_ver: "v1.13.2"
+cert_manager_ver: "v1.14.2"
 
 #set this to true and put your ca cert and internal-ca issuer info in the template files under the cert-manager role
 use_internal_ca: false
