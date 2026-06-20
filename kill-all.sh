@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-ansible-playbook reset.yml
-#ansible-playbook reset.yml -i inventory/my-cluster/hosts.ini --ask-pass --ask-become-pass
+INVENTORY="${INVENTORY:-inventory/my-cluster/hosts.ini}"
+ansible-playbook reset.yml -i "$INVENTORY"

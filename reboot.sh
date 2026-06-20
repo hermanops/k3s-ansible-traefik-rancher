@@ -1,3 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-ansible-playbook reboot.yml
+INVENTORY="${INVENTORY:-inventory/my-cluster/hosts.ini}"
+ansible-playbook reboot.yml -i "$INVENTORY"

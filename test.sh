@@ -1,4 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-#ansible-playbook site.yml -i inventory/my-cluster/hosts.ini --ask-pass --ask-become-pass
-ansible-playbook --syntax-check site.yml -i inventory/my-cluster/hosts.ini
+INVENTORY="${INVENTORY:-inventory/my-cluster/hosts.ini}"
+
+if [[ ! -f "$INVENTORY" ]]; then
+	echo "Inventory file not found: $INVENTORY"
+	echo "Run ./repo-init.sh first, then edit inventory/my-cluster/hosts.ini"
+	exit 1
+fi
+
+ansible-playbook --syntax-check site.yml -i "$INVENTORY"
