@@ -27,6 +27,7 @@ Architectures:
 ## Requirements
 
 - Python 3.10+
+- ansible-core 2.16+
 - Use a virtual environment for tooling
 - SSH connectivity to all cluster nodes
 - Privilege escalation rights on target nodes
