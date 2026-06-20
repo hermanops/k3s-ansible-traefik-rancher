@@ -1,5 +1,7 @@
 ---
-# Deploy internal Traefik via Helm: stage values/manifests, add repo, wait for API VIP, install chart, apply config/dashboard, cleanup
+# Deploy internal Traefik via Helm.
+# Stage values/manifests, add repo, wait for API VIP, install chart,
+# apply config/dashboard, and clean up.
 
 - name: Create traefik config directory on first master
   file:
