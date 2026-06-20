@@ -5,6 +5,7 @@
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
+    mode: "0755"
 
 - name: Copy values to first master
   template:
@@ -49,7 +50,7 @@
     name: kubernetes
     executable: pip3
 
-- name: wait for k3s API server VIP {{ apiserver_endpoint }} to be available
+- name: Wait for k3s API server VIP to be available {{ apiserver_endpoint }}
   wait_for:
     host: "{{ apiserver_endpoint }}"
     port: 6443
