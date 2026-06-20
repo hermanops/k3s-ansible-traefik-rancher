@@ -2,7 +2,7 @@
 - name: Check for rc.local file
   stat:
     path: /etc/rc.local
-  register: rcfile
+  register: lxc_rcfile
 
 - name: Create rc.local if needed
   lineinfile:
@@ -11,7 +11,7 @@
     create: true
     insertbefore: BOF
     mode: "u=rwx,g=rx,o=rx"
-  when: not rcfile.stat.exists
+  when: not lxc_rcfile.stat.exists
 
 - name: Write rc.local file
   blockinfile:

@@ -3,4 +3,4 @@
 # Possible values:
 #   - present
 #   - absent
-state: present
+k3s_custom_registries_state: present

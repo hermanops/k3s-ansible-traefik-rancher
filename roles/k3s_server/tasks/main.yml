@@ -28,7 +28,7 @@
     cmd: "systemd-run -p RestartSec=2 \
                       -p Restart=on-failure \
                       --unit=k3s-init \
-                      k3s server {{ server_init_args }}"
+                      k3s server {{ k3s_server_init_args }}"
     creates: "{{ systemd_dir }}/k3s.service"
 
 - name: Verification
@@ -37,8 +37,8 @@
     - name: Verify that all nodes actually joined (check k3s-init.service if this fails)
       command:
         cmd: k3s kubectl get nodes -l "node-role.kubernetes.io/master=true" -o=jsonpath="{.items[*].metadata.name}"
-      register: nodes
-      until: nodes.rc == 0 and (nodes.stdout.split() | length) == (groups[group_name_master | default('master')] | length)  # yamllint disable-line rule:line-length
+      register: k3s_server_nodes
+      until: k3s_server_nodes.rc == 0 and (k3s_server_nodes.stdout.split() | length) == (groups[k3s_server_group_name_master | default('master')] | length)  # yamllint disable-line rule:line-length
       retries: "{{ retry_count | default(20) }}"
       delay: 10
       changed_when: false
@@ -56,7 +56,7 @@
       failed_when: false
 
 - name: Copy K3s service file
-  register: k3s_service
+  register: k3s_server_service
   template:
     src: "k3s.service.j2"
     dest: "{{ systemd_dir }}/k3s.service"
@@ -78,7 +78,7 @@
 - name: Register node-token file access mode
   stat:
     path: /var/lib/rancher/k3s/server
-  register: p
+  register: k3s_server_node_token_permissions
 
 - name: Change file access node-token
   file:
@@ -88,16 +88,16 @@
 - name: Read node-token from master
   slurp:
     src: /var/lib/rancher/k3s/server/node-token
-  register: node_token
+  register: k3s_server_node_token
 
 - name: Store Master node-token
   set_fact:
-    token: "{{ node_token.content | b64decode | regex_replace('\n', '') }}"
+    k3s_server_token: "{{ k3s_server_node_token.content | b64decode | regex_replace('\n', '') }}"
 
 - name: Restore node-token file access
   file:
     path: /var/lib/rancher/k3s/server
-    mode: "{{ p.stat.mode }}"
+    mode: "{{ k3s_server_node_token_permissions.stat.mode }}"
 
 - name: Create directory .kube
   file:

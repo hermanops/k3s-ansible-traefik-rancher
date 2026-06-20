@@ -6,7 +6,7 @@
   ansible.builtin.command:
     cmd: journalctl --all --unit=k3s-init.service
   changed_when: false
-  register: k3s_init_log
+  register: k3s_server_init_log
 
 - name: Create {{ log_destination }}
   delegate_to: localhost
@@ -25,4 +25,4 @@
     dest: "{{ log_destination }}/k3s-init@{{ ansible_hostname }}.log"
     mode: 0644
   vars:
-    content: "{{ k3s_init_log.stdout }}"
+    content: "{{ k3s_server_init_log.stdout }}"

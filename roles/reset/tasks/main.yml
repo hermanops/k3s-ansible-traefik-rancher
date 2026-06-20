@@ -11,9 +11,9 @@
     - k3s-init
 
 - name: RUN pkill -9 -f "k3s/data/[^/]+/bin/containerd-shim-runc"
-  register: pkill_containerd_shim_runc
+  register: reset_pkill_containerd_shim_runc
   command: pkill -9 -f "k3s/data/[^/]+/bin/containerd-shim-runc"
-  changed_when: "pkill_containerd_shim_runc.rc == 0"
+  changed_when: "reset_pkill_containerd_shim_runc.rc == 0"
   failed_when: false
 
 - name: Umount k3s filesystems
@@ -67,7 +67,7 @@
 - name: Check if rc.local exists
   stat:
     path: /etc/rc.local
-  register: rcfile
+  register: reset_rcfile
 
 - name: Remove rc.local modifications for proxmox lxc containers
   become: true
@@ -76,18 +76,21 @@
     content: "{{ lookup('template', 'templates/rc.local.j2') }}"
     create: false
     state: absent
-  when: proxmox_lxc_configure and rcfile.stat.exists
+  when: proxmox_lxc_configure and reset_rcfile.stat.exists
 
 - name: Check rc.local for cleanup
   become: true
   slurp:
     src: /etc/rc.local
-  register: rcslurp
-  when: proxmox_lxc_configure and rcfile.stat.exists
+  register: reset_rcslurp
+  when: proxmox_lxc_configure and reset_rcfile.stat.exists
 
 - name: Cleanup rc.local if we only have a Shebang line
   become: true
   file:
     path: /etc/rc.local
     state: absent
-  when: proxmox_lxc_configure and rcfile.stat.exists and ((rcslurp.content | b64decode).splitlines() | length) <= 1
+  when:
+    - proxmox_lxc_configure
+    - reset_rcfile.stat.exists
+    - ((reset_rcslurp.content | b64decode).splitlines() | length) <= 1

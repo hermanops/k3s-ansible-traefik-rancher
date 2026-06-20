@@ -3,12 +3,12 @@
   stat:
     path: "/etc/pve/lxc/{{ item }}.conf"
   loop: "{{ proxmox_lxc_ct_ids }}"
-  register: stat_results
+  register: reset_proxmox_lxc_stat_results
 
 - name: Filter out files that do not exist
   set_fact:
-    proxmox_lxc_filtered_files:
-      '{{ stat_results.results | rejectattr("stat.exists", "false") | map(attribute="stat.path") }}'
+    reset_proxmox_lxc_filtered_files:
+      '{{ reset_proxmox_lxc_stat_results.results | rejectattr("stat.exists", "false") | map(attribute="stat.path") }}'
 
 - name: Remove LXC apparmor profile
   lineinfile:
@@ -16,7 +16,7 @@
     regexp: "^lxc.apparmor.profile"
     line: "lxc.apparmor.profile: unconfined"
     state: absent
-  loop: "{{ proxmox_lxc_filtered_files }}"
+  loop: "{{ reset_proxmox_lxc_filtered_files }}"
   notify: reboot containers
 
 - name: Remove lxc cgroups
@@ -25,7 +25,7 @@
     regexp: "^lxc.cgroup.devices.allow"
     line: "lxc.cgroup.devices.allow: a"
     state: absent
-  loop: "{{ proxmox_lxc_filtered_files }}"
+  loop: "{{ reset_proxmox_lxc_filtered_files }}"
   notify: reboot containers
 
 - name: Remove lxc cap drop
@@ -34,7 +34,7 @@
     regexp: "^lxc.cap.drop"
     line: "lxc.cap.drop: "
     state: absent
-  loop: "{{ proxmox_lxc_filtered_files }}"
+  loop: "{{ reset_proxmox_lxc_filtered_files }}"
   notify: reboot containers
 
 - name: Remove lxc mounts
@@ -43,5 +43,5 @@
     regexp: "^lxc.mount.auto"
     line: 'lxc.mount.auto: "proc:rw sys:rw"'
     state: absent
-  loop: "{{ proxmox_lxc_filtered_files }}"
+  loop: "{{ reset_proxmox_lxc_filtered_files }}"
   notify: reboot containers
