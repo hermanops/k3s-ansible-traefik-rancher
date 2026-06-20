@@ -10,9 +10,9 @@ system_timezone: "Your/Timezone"
 # debian is usually eth0, ubuntu could be either that or ens18, varies by OS. check with `ip -a` in terminal
 flannel_iface: "eth0"
 
-#retry count to check all nodes join cluster.  uncomment and set this to something higher than 20
-#if your cluster doesn't all join up before the playbook times out
-#retry_count: 40
+# retry count to check all nodes join cluster. Uncomment and set this to something
+# higher than 20 if your cluster doesn't all join up before the playbook times out.
+# retry_count: 40
 
 # apiserver_endpoint is virtual ip-address which will be configured on each master
 apiserver_endpoint: "192.168.10.15"
@@ -27,7 +27,7 @@ k3s_node_ip: '{{ ansible_facts[flannel_iface]["ipv4"]["address"] }}'
 
 # Disable the taint manually by setting: k3s_master_taint = false
 # switch which line is commented below to enable the taint on your masters when you have agent nodes
-#k3s_master_taint: "{{ true if groups['node'] | default([]) | length >= 1 else false }}"
+# k3s_master_taint: "{{ true if groups['node'] | default([]) | length >= 1 else false }}"
 
 k3s_master_taint: false
 
@@ -36,12 +36,19 @@ extra_args: >-
   --flannel-iface={{ flannel_iface }}
   --node-ip={{ k3s_node_ip }}
 
-# change these to your liking, the only required ones are --no-deploy servicelb and --no-depoly traefik (this playbook deploys traefik)
-# If you don't want to deploy traefik with helm afterwards and rather use the one packed with k3s, remove the --no-deploy traefik flag
+# change these to your liking; the only required ones are --no-deploy servicelb
+# and --no-depoly traefik (this playbook deploys traefik)
+# If you don't want to deploy traefik with helm afterwards and rather use the one
+# packed with k3s, remove the --no-deploy traefik flag
 # and set the var 'deploy_traefik: false' down below
 # -----------------------
-# 7-24-2022: added additional args for prometheus monitoring following Tim's tutorial on that, If you don't plan to do monitoring they can be removed
-# "--kube-controller-manager-arg bind-address=0.0.0.0 --kube-proxy-arg metrics-bind-address=0.0.0.0 --kube-scheduler-arg bind-address=0.0.0.0 --etcd-expose-metrics true --kubelet-arg containerd=/run/k3s/containerd/containerd.sock"
+# 7-24-2022: added additional args for prometheus monitoring following Tim's
+# tutorial. If you don't plan to do monitoring they can be removed.
+# "--kube-controller-manager-arg bind-address=0.0.0.0"
+# "--kube-proxy-arg metrics-bind-address=0.0.0.0"
+# "--kube-scheduler-arg bind-address=0.0.0.0"
+# "--etcd-expose-metrics true"
+# "--kubelet-arg containerd=/run/k3s/containerd/containerd.sock"
 extra_server_args: >-
   {{ extra_args }}
   {{ '--node-taint node-role.kubernetes.io/master=true:NoSchedule' if k3s_master_taint else '' }}
@@ -72,7 +79,7 @@ metal_lb_mode: "layer2"
 # metal_lb_bgp_peer_address: "192.168.30.1"
 
 # image tag for metal lb
-#metal_lb_frr_tag_version: "v7.5.1"
+# metal_lb_frr_tag_version: "v7.5.1"
 metal_lb_speaker_tag_version: "v0.14.3"
 metal_lb_controller_tag_version: "v0.14.3"
 
@@ -101,34 +108,38 @@ proxmox_lxc_ct_ids:
   - 204
 
 
-#deploy traefik? this deploys both an internal (default ingress) and external instance of traefik, external = traefik-external ingressClass
+# deploy traefik? This deploys both an internal (default ingress) and external
+# instance of traefik, external = traefik-external ingressClass
 deploy_traefik: true
 
-#first IP from above metalLB range which will be used by traefik
-#--IMPORTANT-- This IP NEEDS to be contained in the above pool provided to metalLB.  Usually I use the first one in that range
+# first IP from above metalLB range which will be used by traefik
+# --IMPORTANT-- This IP NEEDS to be contained in the above pool provided to
+# metalLB. Usually I use the first one in that range.
 # internal and external param respectively - port forward from your firewall to the external instance
 traefik_int_endpoint_ip: "192.168.10.40"
 traefik_ext_endpoint_ip: "192.168.10.41"
 
-#set this in your local DNS server (ie. Pihole, or pfsense, etc.) pointing to the IP from the line just above.
+# set this in your local DNS server (ie. Pihole, or pfsense, etc.) pointing to
+# the IP from the line just above.
 traefik_int_dash_dns_name: "traefik.yourdomain.lan"
 traefik_ext_dash_dns_name: "traefik-ext.yourdomain.lan"
 
-#number of traefik pods you want running
+# number of traefik pods you want running
 traefik_replicas: 1
 
-#deploy rancher?
+# deploy rancher?
 deploy_rancher: true
-#number of replicas you want for rancher's pods
+# number of replicas you want for rancher's pods
 rancher_replicas: 1
 
-#rancher dns name
+# rancher dns name
 rancher_dns_name: "rancher.yourdomain.lan"
 
-#version of cert-manager to deploy
+# version of cert-manager to deploy
 cert_manager_ver: "v1.14.2"
 
-#set this to true and put your ca cert and internal-ca issuer info in the template files under the cert-manager role
+# set this to true and put your ca cert and internal-ca issuer info in the
+# template files under the cert-manager role
 use_internal_ca: false
 
 
