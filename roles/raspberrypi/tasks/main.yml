@@ -50,13 +50,16 @@
 - name: Execute OS related tasks on the Raspberry Pi - {{ action_ }}
   include_tasks: "{{ item }}"
   with_first_found:
-    - "{{ action_ }}/{{ raspberrypi_detected_distribution }}-{{ raspberrypi_detected_distribution_major_version }}.yml"
-    - "{{ action_ }}/{{ raspberrypi_detected_distribution }}.yml"
+    - "{{ action_ }}/{{ raspberrypi_include_distribution }}-{{ raspberrypi_include_distribution_major_version }}.yml"
+    - "{{ action_ }}/{{ raspberrypi_include_distribution }}.yml"
     - "{{ action_ }}/{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
     - "{{ action_ }}/{{ ansible_distribution }}.yml"
     - "{{ action_ }}/default.yml"
   vars:
     action_: >-
       {% if raspberrypi_state == "present" %}setup{% else %}teardown{% endif %}
+    raspberrypi_include_distribution: "{{ raspberrypi_detected_distribution | default(ansible_distribution) }}"
+    raspberrypi_include_distribution_major_version: >-
+      {{ raspberrypi_detected_distribution_major_version | default(ansible_distribution_major_version) }}
   when:
     - raspberrypi_is_raspberry_pi|default(false)

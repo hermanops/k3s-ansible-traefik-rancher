@@ -5,7 +5,7 @@
 # - wait for API VIP
 # - install chart
 # - apply config/dashboard
-# - cleanup
+# - clean up
 
 - name: Create traefik config directory on first master
   file:
