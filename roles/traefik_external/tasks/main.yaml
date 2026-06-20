@@ -1,5 +1,5 @@
 ---
-# do some stuff here to pull the kube config, install helm, pull the traefik chart and deploy traefik
+# Deploy external Traefik via Helm: stage values/manifests, add repo, wait for API VIP, ensure namespaces, install chart, apply config/dashboard, cleanup
 
 - name: Create traefik config directory on first master
   file:
@@ -15,7 +15,7 @@
     dest: /tmp/traefik-ext/traefik-chart-values.yaml
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0644
+    mode: "0644"
 
 - name: Copy traefik config to first master
   template:
@@ -23,7 +23,7 @@
     dest: /tmp/traefik-ext/traefik-config.yaml
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0644
+    mode: "0644"
 
 - name: Copy traefik dashboard manifest to first master
   template:
@@ -31,7 +31,7 @@
     dest: /tmp/traefik-ext/dashboard.yaml
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0644
+    mode: "0644"
 
 - name: Add traefik helm repo
   kubernetes.core.helm_repository:

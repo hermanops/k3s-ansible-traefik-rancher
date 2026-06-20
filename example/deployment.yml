@@ -22,8 +22,8 @@ spec:
           image: nginx:alpine
           securityContext:
             allowPrivilegeEscalation: false
-            runAsNonRoot: true
-            readOnlyRootFilesystem: true
+            runAsNonRoot: false
+            readOnlyRootFilesystem: false
             capabilities:
               drop:
                 - ALL

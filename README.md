@@ -26,7 +26,7 @@ Architectures:
 
 ## Requirements
 
-- Python 3.12+ (recommended for latest Ansible ecosystem)
+- Python 3.10+
 - Use a virtual environment for tooling
 - SSH connectivity to all cluster nodes
 - Privilege escalation rights on target nodes
@@ -153,11 +153,11 @@ scp <user>@<master_ip>:~/.kube/config ~/.kube/config
 
 ## Tooling Notes
 
-- Use venv + toolchain upgrades together (`ansible`, `ansible-lint`, `yamllint`, and collections).
+- Use a Python virtual environment and keep toolchain components updated together (`ansible`, `ansible-lint`, `yamllint`, and collections).
 - Let collection metadata dictate minimum supported ansible-core for your environment.
 - On WSL/Ubuntu, if Ansible reports locale errors, set:
-	- `LANG=en_US.utf8`
-	- `LC_ALL=en_US.utf8`
+  - `LANG=en_US.UTF-8`
+  - `LC_ALL=en_US.UTF-8`
 - If your shell aliases `grep` to `rg`, commands like `grep -E ...` may fail unexpectedly.
 
 Quick checks:

@@ -14,7 +14,7 @@ fi
 export VIRTUAL_ENV="$VENV_PATH"
 export PATH="$VENV_PATH/bin:$PATH"
 
-# This locale is required by the current Ansible + Python setup in WSL.
+# Ansible may require an explicit UTF-8 locale in some environments.
 # Use the canonical UTF-8 form and force it to avoid inherited bad locales.
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
