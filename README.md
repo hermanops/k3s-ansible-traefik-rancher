@@ -1,103 +1,148 @@
-# Build a Kubernetes HA-cluster using k3s & kube-vip & metal-lb via Ansible
+# Build a Highly Available k3s Cluster with Ansible
 
-*Based on <https://docs.technotim.live/posts/k3s-etcd-ansible/> and <https://github.com/k3s-io/k3s-ansible*
+This project provisions a highly available k3s Kubernetes cluster with:
 
-BIG SHOUTOUT TO [TechnoTim](https://github.com/timothystewart6) who made this possible and inspired me be sure to check him out!
+- kube-vip for a control-plane virtual IP
+- MetalLB for LoadBalancer IP assignment
+- dual Traefik ingress controllers (internal and external)
+- Rancher management UI
+- cert-manager for TLS
 
-## Instructions/notes
+Based on:
+- https://docs.technotim.live/posts/k3s-etcd-ansible/
+- https://github.com/k3s-io/k3s-ansible
 
-Here: <https://thepcgeek.net/posts/ansible-to-k3s-rancher/>
+## Supported Platforms
 
-## K3s Ansible Playbook
+Operating systems:
+- Debian
+- Ubuntu
+- CentOS
 
-Build a k3s Kubernetes cluster using Ansible. The goal is easily install a highly available Kubernetes cluster with Traefik and Rancher on machines running:
+Architectures:
+- x64
+- arm64
+- armhf
 
-- [X] Debian
-- [X] Ubuntu
-- [X] CentOS
+## Requirements
 
-on processor architecture:
+- Python 3.10+
+- ansible-core 2.16+
+- SSH connectivity to all cluster nodes
+- Privilege escalation rights on target nodes
 
-- [X] x64
-- [X] arm64
-- [X] armhf
+## Quick Start
 
-## System requirements
-
-Deployment environment must have Ansible 2.4.0+
-Master and nodes must have passwordless SSH access
-
-## Usage
-
-First create a new directory based on the `sample` directory within the `inventory` directory:
-
-```bash
-cp -R inventory/sample inventory/my-cluster
-```
-
-Second, edit inventory/my_cluster/hosts.ini to match the system information gathered above. For example:
+1. Create a working inventory:
 
 ```bash
-[master]
-192.16.35.12
-
-[node]
-192.16.35.[10:11]
-
-[k3s_cluster:children]
-master
-node
+./repo-init.sh
 ```
 
-If multiple hosts are in the master group, the playbook will automatically setup k3s in HA mode with etcd.
-https://rancher.com/docs/k3s/latest/en/installation/ha-embedded/
-This requires at least k3s version 1.19.1
+2. Edit:
+- inventory/my-cluster/hosts.ini
+- inventory/my-cluster/group_vars/all.yml
 
-Edit inventory/my_cluster/group_vars/all.yml to match your environment.
-
-You can also make any edits needed to the traefik config or chart values ie:(adding resolvers for TLS certs), those files are under `roles/traefik/templates` keep the file names the same though or the playbook will fail
-
-Start provisioning of the cluster using the following command:
+3. Install Python and Ansible dependencies:
 
 ```bash
-ansible-playbook site.yml -i inventory/my-cluster/hosts.ini --ask-pass --ask-become-pass
+pip install -r requirements.txt
+ansible-galaxy collection install -r collections/requirements.yml
 ```
 
-After deployment control plane will be accessible via virtual ip-address which is defined in inventory/my-cluster/group_vars/all.yml as apiserver_endpoint
-
-Traefik dashboard will be available on the DNS name you specified in the all.yml variables
-
-Rancher will also be available shortly after the playbook finishes at it's DNS name also specified in the variable file
-
-### A note about node-taints and having masters not run workloads on them
-
-In Tim's version he has encorperated adding the criticaladdonsonly=noexecute taint to his playbook process.  I have decided not to include this in my version because I run only 3 master nodes and they run my stuff on them which is perfectly fine to do. I don't have the need to taint my masters.  If you want to continue using my playbook you can taint your masters after deployment by running a kubectl command or adding the taint to the nodes in rancher.
-
-
-Remove k3s cluster
+4. Validate:
 
 ```bash
-ansible-playbook reset.yml -i inventory/my-cluster/hosts.ini --ask-pass --ask-become-pass
+./test.sh
+ansible-lint
+yamllint .
 ```
 
-## Kubeconfig
-
-To get access to your **Kubernetes** cluster just
+5. Deploy:
 
 ```bash
-scp debian@master_ip:~/.kube/config ~/.kube/config
+./deploy.sh
 ```
 
-## kube-vip
+## Common Commands
 
-See <https://kube-vip.io/control-plane/>
+Deploy cluster:
 
-## MetalLB
+```bash
+ansible-playbook site.yml
+```
 
-see <https://metallb.universe.tf/installation/>
+Reset cluster:
 
-## Links
+```bash
+ansible-playbook reset.yml
+```
 
-Techno-Tim's video on his playbook this is based on: <https://www.youtube.com/watch?v=CbkEWcUZ7zM>
+Reboot all nodes:
 
-Kube-vip Control Plane is described -> <https://kube-vip.io/control-plane/>
+```bash
+ansible-playbook reboot.yml
+```
+
+Run syntax check:
+
+```bash
+./test.sh
+```
+
+Run lint checks:
+
+```bash
+ansible-lint
+yamllint .
+```
+
+## Inventory Notes
+
+Default inventory path is configured in ansible.cfg:
+- inventory/my-cluster/hosts.ini
+
+All helper scripts also support overriding inventory via environment variable:
+
+```bash
+INVENTORY=inventory/my-cluster/hosts.ini ./deploy.sh
+```
+
+## Configuration
+
+Main cluster variables live in:
+- inventory/my-cluster/group_vars/all.yml
+
+Template source for new clusters:
+- inventory/sample/group_vars/all.yml
+
+Important values to set correctly:
+- apiserver_endpoint
+- k3s_token
+- flannel_iface
+- metal_lb_ip_range
+- traefik_int_endpoint_ip
+- traefik_ext_endpoint_ip
+
+traefik_int_endpoint_ip and traefik_ext_endpoint_ip must be inside metal_lb_ip_range.
+
+## Getting kubeconfig
+
+Copy kubeconfig from one master node:
+
+```bash
+scp <user>@<master_ip>:~/.kube/config ~/.kube/config
+```
+
+## Additional Documentation
+
+- Project walkthrough: https://thepcgeek.net/posts/ansible-to-k3s-rancher/
+- kube-vip docs: https://kube-vip.io/control-plane/
+- MetalLB docs: https://metallb.universe.tf/installation/
+- k3s HA docs: https://rancher.com/docs/k3s/latest/en/installation/ha-embedded/
+- Maintainer-oriented repo notes: CLAUDE.md
+
+## Notes on Master Scheduling
+
+This project does not automatically taint control-plane nodes with criticaladdonsonly=noexecute.
+If you need dedicated control-plane nodes, apply taints after deployment.
