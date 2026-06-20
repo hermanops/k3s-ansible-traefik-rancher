@@ -3,12 +3,12 @@
   stat:
     path: "/etc/pve/lxc/{{ item }}.conf"
   loop: "{{ proxmox_lxc_ct_ids }}"
-  register: stat_results
+  register: proxmox_lxc_stat_results
 
 - name: Filter out files that do not exist
   set_fact:
     proxmox_lxc_filtered_files:
-      '{{ stat_results.results | rejectattr("stat.exists", "false") | map(attribute="stat.path") }}'
+      '{{ proxmox_lxc_stat_results.results | rejectattr("stat.exists", "false") | map(attribute="stat.path") }}'
 
 # https://gist.github.com/triangletodd/02f595cd4c0dc9aac5f7763ca2264185
 - name: Ensure lxc config has the right apparmor profile

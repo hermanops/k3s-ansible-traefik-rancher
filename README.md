@@ -26,8 +26,8 @@ Architectures:
 
 ## Requirements
 
-- Python 3.10+
-- ansible-core 2.16+
+- Python 3.12+ (recommended for latest Ansible ecosystem)
+- Use a virtual environment for tooling
 - SSH connectivity to all cluster nodes
 - Privilege escalation rights on target nodes
 
@@ -46,6 +46,9 @@ Architectures:
 3. Install Python and Ansible dependencies:
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -U pip
 pip install -r requirements.txt
 ansible-galaxy collection install -r collections/requirements.yml
 ```
@@ -97,6 +100,12 @@ ansible-lint
 yamllint .
 ```
 
+Run all local checks with environment setup:
+
+```bash
+./lint.sh
+```
+
 ## Inventory Notes
 
 Default inventory path is configured in ansible.cfg:
@@ -141,6 +150,24 @@ scp <user>@<master_ip>:~/.kube/config ~/.kube/config
 - MetalLB docs: https://metallb.universe.tf/installation/
 - k3s HA docs: https://rancher.com/docs/k3s/latest/en/installation/ha-embedded/
 - Maintainer-oriented repo notes: CLAUDE.md
+
+## Tooling Notes
+
+- Use venv + toolchain upgrades together (`ansible`, `ansible-lint`, `yamllint`, and collections).
+- Let collection metadata dictate minimum supported ansible-core for your environment.
+- On WSL/Ubuntu, if Ansible reports locale errors, set:
+	- `LANG=en_US.utf8`
+	- `LC_ALL=en_US.utf8`
+- If your shell aliases `grep` to `rg`, commands like `grep -E ...` may fail unexpectedly.
+
+Quick checks:
+
+```bash
+type grep
+alias grep
+ansible-lint --version
+ansible-galaxy collection list community.general
+```
 
 ## Notes on Master Scheduling
 

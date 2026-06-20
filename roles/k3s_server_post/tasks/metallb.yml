@@ -5,7 +5,7 @@
     state: directory
     owner: "{{ ansible_user_id }}"
     mode: 0755
-  with_items: "{{ groups[group_name_master | default('master')] }}"
+  with_items: "{{ groups[k3s_server_post_group_name_master | default('master')] }}"
   run_once: true
 
 - name: Copy metallb CRs manifest to first master
@@ -14,14 +14,14 @@
     dest: "/tmp/k3s/metallb-crs.yaml"
     owner: "{{ ansible_user_id }}"
     mode: 0755
-  with_items: "{{ groups[group_name_master | default('master')] }}"
+  with_items: "{{ groups[k3s_server_post_group_name_master | default('master')] }}"
   run_once: true
 
 - name: Test metallb-system namespace
   command: >-
     k3s kubectl -n metallb-system
   changed_when: false
-  with_items: "{{ groups[group_name_master | default('master')] }}"
+  with_items: "{{ groups[k3s_server_post_group_name_master | default('master')] }}"
   run_once: true
 
 - name: Wait for MetalLB resources
@@ -31,7 +31,7 @@
     {% if item.name | default(False) -%}{{ item.name }}{%- endif %}
     {% if item.selector | default(False) -%}--selector='{{ item.selector }}'{%- endif %}
     {% if item.condition | default(False) -%}{{ item.condition }}{%- endif %}
-    --timeout='{{ metal_lb_available_timeout }}'
+    --timeout='{{ k3s_server_post_metal_lb_available_timeout }}'
   changed_when: false
   run_once: true
   with_items:
@@ -66,17 +66,17 @@
   command: >-
     k3s kubectl -n metallb-system get endpoints webhook-service
   changed_when: false
-  with_items: "{{ groups[group_name_master | default('master')] }}"
+  with_items: "{{ groups[k3s_server_post_group_name_master | default('master')] }}"
   run_once: true
 
 - name: Apply metallb CRs
   command: >-
     k3s kubectl apply -f /tmp/k3s/metallb-crs.yaml
-    --timeout='{{ metal_lb_available_timeout }}'
-  register: this
+    --timeout='{{ k3s_server_post_metal_lb_available_timeout }}'
+  register: k3s_server_post_apply_metallb
   changed_when: false
   run_once: true
-  until: this.rc == 0
+  until: k3s_server_post_apply_metallb.rc == 0
   retries: 5
 
 - name: Test metallb-system resources for Layer 2 configuration

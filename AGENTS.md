@@ -37,7 +37,7 @@ Default inventory is set in `ansible.cfg` to `inventory/my-cluster/hosts.ini`.
   - `roles/k3s_agent`: worker node join
   - `roles/k3s_server_post`: MetalLB CRs
   - `roles/traefik_internal` and `roles/traefik_external`: dual ingress setup
-  - `roles/cert-manager`, `roles/rancher`, `roles/helm`: control-plane add-ons
+  - `roles/cert_manager`, `roles/rancher`, `roles/helm`: control-plane add-ons
 
 ## High-Importance Conventions
 

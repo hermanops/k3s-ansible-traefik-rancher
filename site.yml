@@ -2,7 +2,7 @@
 - name: Prepare Proxmox cluster
   hosts: proxmox
   gather_facts: true
-  become: yes
+  become: true
   environment: "{{ proxy_env | default({}) }}"
   roles:
     - role: proxmox_lxc
@@ -10,7 +10,7 @@
 
 - name: Prepare k3s nodes
   hosts: k3s_cluster
-  gather_facts: yes
+  gather_facts: true
   environment: "{{ proxy_env | default({}) }}"
   roles:
     - role: lxc
@@ -56,22 +56,22 @@
 - name: Deploy cert-manager
   hosts: master[0]
   roles:
-    - role: cert-manager
+    - role: cert_manager
       when: deploy_traefik or deploy_rancher | bool
 
-- name: deploy traefik internal
+- name: Deploy traefik internal
   hosts: master[0]
   roles:
     - role: traefik_internal
       when: deploy_traefik | bool
 
-- name: deploy traefik external
+- name: Deploy traefik external
   hosts: master[0]
   roles:
     - role: traefik_external
       when: deploy_traefik | bool
 
-- name: deploy rancher
+- name: Deploy rancher
   hosts: master[0]
   roles:
     - role: rancher
