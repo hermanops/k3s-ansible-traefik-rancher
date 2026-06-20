@@ -3,6 +3,7 @@
 # - stage values/manifests
 # - add repo
 # - wait for API VIP
+# - ensure namespaces (not required for internal role)
 # - install chart
 # - apply config/dashboard
 # - clean up
