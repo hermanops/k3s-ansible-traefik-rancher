@@ -7,7 +7,7 @@
     dest: /tmp/get-helm-3.sh
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0755
+    mode: "0755"
 
 - name: Install helm on first master
   become: true

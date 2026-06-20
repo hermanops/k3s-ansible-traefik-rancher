@@ -13,7 +13,7 @@
     dest: /tmp/cert-manager/values.yaml
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0644
+    mode: "0644"
 
 - name: Copy internal-ca to first master
   template:
@@ -21,7 +21,7 @@
     dest: /tmp/cert-manager/internal-ca.yaml
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0644
+    mode: "0644"
   when: use_internal_ca | bool
 
 - name: Copy ca-issuer to first master
@@ -30,7 +30,7 @@
     dest: /tmp/cert-manager/ca-issuer.yaml
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0644
+    mode: "0644"
   when: use_internal_ca | bool
 
 - name: Add cert-manager helm repo
@@ -60,7 +60,7 @@
   get_url:
     url: https://github.com/jetstack/cert-manager/releases/download/{{ cert_manager_ver }}/cert-manager.crds.yaml
     dest: /tmp/cert-manager/cert-manager.crds.yaml
-    mode: 0644
+    mode: "0644"
 
 - name: Apply cert-manager CRDs
   kubernetes.core.k8s:

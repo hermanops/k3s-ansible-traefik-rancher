@@ -15,7 +15,7 @@
     dest: /tmp/traefik-int/traefik-chart-values.yaml
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0644
+    mode: "0644"
 
 - name: Copy traefik config to first master
   template:
@@ -23,7 +23,7 @@
     dest: /tmp/traefik-int/traefik-config.yaml
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0644
+    mode: "0644"
 
 - name: Copy traefik dashboard manifest to first master
   template:
@@ -31,7 +31,7 @@
     dest: /tmp/traefik-int/dashboard.yaml
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0644
+    mode: "0644"
 
 - name: Add traefik helm repo
   kubernetes.core.helm_repository:
