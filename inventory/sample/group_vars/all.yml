@@ -36,9 +36,7 @@ extra_args: >-
   --flannel-iface={{ flannel_iface }}
   --node-ip={{ k3s_node_ip }}
 
-# change these to your liking; the only required ones are --no-deploy servicelb
-# and --no-depoly traefik (this playbook deploys traefik)
-# If you don't want to deploy traefik with helm afterwards and rather use the one
+# and --no-deploy traefik (this playbook deploys traefik)
 # packed with k3s, remove the --no-deploy traefik flag
 # and set the var 'deploy_traefik: false' down below
 # -----------------------
