@@ -1,12 +1,7 @@
-- name: add rancher helm repo
-  command:
-    cmd: "helm repo add rancher-stable https://releases.rancher.com/server-charts/stable"
-  changed_when: true
-
-- name: update helm repo
-  command:
-    cmd: "helm repo update"
-  changed_when: true
+- name: Add rancher helm repo
+  kubernetes.core.helm_repository:
+    name: rancher-stable
+    repo_url: https://releases.rancher.com/server-charts/stable
 
 - name: wait for k3s API server VIP {{ apiserver_endpoint }} to be available
   wait_for:
@@ -14,13 +9,21 @@
     port: 6443
     delay: 10
 
-- name: create the cattle-system namespace for rancher
-  command:
-    cmd: kubectl create namespace cattle-system
-  changed_when: true
+- name: Create the cattle-system namespace for rancher
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    name: cattle-system
+    state: present
 
-#deploy rancher
-- name: deploy rancher with dns name {{ rancher_dns_name }}
-  command:
-    cmd: helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname="{{ rancher_dns_name }}" --set replicas="{{ rancher_replicas }}"
-  changed_when: true
+- name: Deploy rancher with dns name {{ rancher_dns_name }}
+  kubernetes.core.helm:
+    name: rancher
+    chart_ref: rancher-stable/rancher
+    release_namespace: cattle-system
+    create_namespace: true
+    wait: true
+    values:
+      hostname: "{{ rancher_dns_name }}"
+      replicas: "{{ rancher_replicas }}"
+    state: present

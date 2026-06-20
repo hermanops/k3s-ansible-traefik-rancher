@@ -32,15 +32,10 @@
     mode: 0644
   when: use_internal_ca | bool
 
-- name: add cert-manager helm repo
-  command:
-    cmd: "helm repo add jetstack https://charts.jetstack.io"
-  changed_when: true
-
-- name: update helm repo
-  command:
-    cmd: "helm repo update"
-  changed_when: true
+- name: Add cert-manager helm repo
+  kubernetes.core.helm_repository:
+    name: jetstack
+    repo_url: https://charts.jetstack.io
 
 - name: wait for k3s API server VIP {{ apiserver_endpoint }} to be available
   wait_for:
@@ -48,42 +43,46 @@
     port: 6443
     delay: 10
 
-- name: apply cert-manager CRDs
-  command:
-    cmd: kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/{{ cert_manager_ver }}/cert-manager.crds.yaml
+- name: Apply cert-manager CRDs
+  kubernetes.core.k8s:
+    state: present
+    src: https://github.com/jetstack/cert-manager/releases/download/{{ cert_manager_ver }}/cert-manager.crds.yaml
   retries: 2
   delay: 3
-  changed_when: true
 
-- name: create cert-manager namespace
-  command:
-    cmd: kubectl create namespace cert-manager
+- name: Create cert-manager namespace
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    name: cert-manager
+    state: present
   retries: 2
   delay: 3
-  changed_when: true
 
-- name: apply cert-manager internal-ca configmap
-  command:
-    cmd: kubectl apply -f /tmp/cert-manager/internal-ca.yaml
+- name: Apply cert-manager internal-ca configmap
+  kubernetes.core.k8s:
+    state: present
+    src: /tmp/cert-manager/internal-ca.yaml
   retries: 2
   delay: 3
-  changed_when: true
   when: use_internal_ca | bool
 
-- name: deploy cert-manager using helm
-  command:
-    cmd: "helm install \
-      cert-manager jetstack/cert-manager \
-      --namespace cert-manager \
-      --version {{ cert_manager_ver }} \
-      --values=/tmp/cert-manager/values.yaml
-      --wait"
-  changed_when: true
+- name: Deploy cert-manager using helm
+  kubernetes.core.helm:
+    name: cert-manager
+    chart_ref: jetstack/cert-manager
+    chart_version: "{{ cert_manager_ver }}"
+    release_namespace: cert-manager
+    create_namespace: true
+    values_files:
+      - /tmp/cert-manager/values.yaml
+    wait: true
+    state: present
 
-- name: create internal CA issuer
-  command:
-    cmd: kubectl apply -f /tmp/cert-manager/ca-issuer.yaml
+- name: Create internal CA issuer
+  kubernetes.core.k8s:
+    state: present
+    src: /tmp/cert-manager/ca-issuer.yaml
   retries: 2
   delay: 3
-  changed_when: true
   when: use_internal_ca | bool

@@ -32,15 +32,10 @@
     group: "{{ ansible_user }}"
     mode: 0644
 
-- name: add traefik helm repo
-  command:
-    cmd: "helm repo add traefik https://helm.traefik.io/traefik"
-  changed_when: true
-
-- name: update helm repo
-  command:
-    cmd: "helm repo update"
-  changed_when: true
+- name: Add traefik helm repo
+  kubernetes.core.helm_repository:
+    name: traefik
+    repo_url: https://helm.traefik.io/traefik
 
 - name: wait for k3s API server VIP {{ apiserver_endpoint }} to be available
   wait_for:
@@ -48,27 +43,31 @@
     port: 6443
     delay: 10
 
-- name: create external-services namespace
-  command:
-    cmd: kubectl create namespace external-services
-  changed_when: true
+- name: Create external-services namespace
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    name: external-services
+    state: present
 
-- name: deploy traefik using helm
-  command:
-    cmd: "helm install traefik-external traefik/traefik \
-      --namespace=kube-system \
-      --values=/tmp/traefik-ext/traefik-chart-values.yaml"
-  changed_when: true
+- name: Deploy traefik using helm
+  kubernetes.core.helm:
+    name: traefik-external
+    chart_ref: traefik/traefik
+    release_namespace: kube-system
+    values_files:
+      - /tmp/traefik-ext/traefik-chart-values.yaml
+    state: present
 
-- name: apply traefik config
-  command:
-    cmd: kubectl apply -f /tmp/traefik-ext/traefik-config.yaml
-  changed_when: true
+- name: Apply traefik config
+  kubernetes.core.k8s:
+    state: present
+    src: /tmp/traefik-ext/traefik-config.yaml
 
-- name: apply traefik dashboard
-  command:
-    cmd: kubectl apply -f /tmp/traefik-ext/dashboard.yaml
-  changed_when: true
+- name: Apply traefik dashboard
+  kubernetes.core.k8s:
+    state: present
+    src: /tmp/traefik-ext/dashboard.yaml
 
 - name: Clean up traefik tmp dir
   file:
