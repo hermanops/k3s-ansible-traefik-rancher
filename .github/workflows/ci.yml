@@ -1,6 +1,7 @@
+---
 name: Lint and Syntax Check
 
-on:
+"on":
   pull_request:
   push:
     branches: [main]
