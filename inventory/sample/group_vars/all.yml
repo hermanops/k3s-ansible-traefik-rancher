@@ -1,5 +1,5 @@
 ---
-k3s_version: v1.27.10+k3s1
+k3s_version: v1.35.9+k3s1
 ansible_user: serveradmin
 systemd_dir: /etc/systemd/system
 
@@ -133,8 +133,10 @@ rancher_replicas: 1
 # rancher dns name
 rancher_dns_name: "rancher.yourdomain.lan"
 
-# version of cert-manager to deploy
-cert_manager_ver: "v1.14.2"
+# versions of the Helm charts to deploy
+cert_manager_ver: "v1.21.3"
+traefik_chart_version: "42.2.0"
+rancher_chart_version: "2.14.3"
 
 # set this to true and put your ca cert and internal-ca issuer info in the
 # template files under the cert-manager role

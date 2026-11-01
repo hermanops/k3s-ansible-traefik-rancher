@@ -21,6 +21,7 @@
   kubernetes.core.helm:
     name: rancher
     chart_ref: rancher-stable/rancher
+    chart_version: "{{ rancher_chart_version }}"
     release_namespace: cattle-system
     create_namespace: true
     wait: true

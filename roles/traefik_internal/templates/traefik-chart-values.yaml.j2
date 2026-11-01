@@ -1,7 +1,6 @@
 additionalArguments:
   - "--log.level=INFO"
   - --serversTransport.insecureSkipVerify=true
-globalArguments:
   - "--global.sendanonymoususage=false"
   - "--global.checknewversion=false"
 
@@ -60,8 +59,8 @@ providers:
     publishedService:
       enabled: true
 
-dashboard:
-  enabled: true
+api:
+  dashboard: true
 
 rbac:
   enabled: true

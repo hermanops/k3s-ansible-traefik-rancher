@@ -62,6 +62,7 @@
   kubernetes.core.helm:
     name: traefik-external
     chart_ref: traefik/traefik
+    chart_version: "{{ traefik_chart_version }}"
     release_namespace: kube-system
     values_files:
       - /tmp/traefik-ext/traefik-chart-values.yaml
